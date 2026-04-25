@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "thirdnet-oa-report": {
+      "command": "node",
+      "args": ["server/index.js"]
+    }
+  }
+}
