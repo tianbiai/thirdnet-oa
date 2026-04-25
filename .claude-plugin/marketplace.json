@@ -1,0 +1,22 @@
+{
+  "name": "thirdnet-oa-plugins",
+  "owner": {
+    "name": "tianbiai"
+  },
+  "metadata": {
+    "description": "Thirdnet OA 日报助手插件集",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "thirdnet-oa-report",
+      "source": "./plugins/thirdnet-oa-report",
+      "description": "OA 日报助手 - 提交、查看、催办日报，AI 自动总结工作内容",
+      "version": "0.1.0",
+      "author": { "name": "pig_l" },
+      "keywords": ["oa", "daily-report", "automation", "chinese"],
+      "category": "productivity",
+      "strict": false
+    }
+  ]
+}
