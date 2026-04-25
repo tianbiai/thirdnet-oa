@@ -16,8 +16,9 @@ thirdnet-oa/
         ├── .mcp.json                    # MCP Server 注册（node server/index.js）
         ├── package.json                 # Node.js 包配置
         ├── server/index.js              # 编译后的 MCP Server（1MB+，含所有依赖）
-        ├── agents/oa-assistant.md       # 统一 OA 助手 Agent 定义
-        ├── rules/confirm-before-submit.md  # 写操作确认规则
+        ├── rules/
+        │   ├── confirm-before-submit.md  # 写操作确认规则
+        │   └── no-file-creation.md       # 禁止在用户项目目录创建文件
         └── skills/
             ├── submit-daily-report/SKILL.md   # 日报提交
             ├── view-daily-report/SKILL.md     # 日报查看
@@ -27,16 +28,15 @@ thirdnet-oa/
 
 ## 架构
 
-项目采用 Claude Code Plugin 架构：
+项目采用 Claude Code Plugin 架构，Skills 直接在主上下文执行以获得 MCP 工具访问权限：
 
 - **MCP Server** (`server/index.js`)：编译打包的单文件 Node.js 服务，提供与 OA API 交互的所有 MCP 工具。包含 SM2 加密登录、HMAC-SHA512 Basic 认证、AES-256 密码加密等安全逻辑。
-- **Agent** (`agents/oa-assistant.md`)：统一入口 Agent，处理所有 OA 日报相关工作流，定义 MCP 工具列表、输出格式规范、错误恢复策略和主动行为规则。
-- **Skills**：四个独立工作流，分别处理配置、提交、查看、催办场景。每个 Skill 定义了详细的步骤流程和错误处理表。
-- **Rules** (`rules/confirm-before-submit.md`)：全局写操作保护规则，强制所有提交/催办操作必须预览并等待用户确认。
+- **Skills**：四个独立工作流，分别处理配置、提交、查看、催办场景。每个 Skill 在主上下文中直接调用 MCP 工具，不需要 Agent 中间层。Skills 包含详细的步骤流程和错误处理表。
+- **Rules**：两条保护规则 — `confirm-before-submit`（写操作必须用户确认）和 `no-file-creation`（禁止在用户项目目录创建文件或运行包管理命令）。
 
 ## MCP 工具
 
-Server 暴露以下工具供 Agent/Skill 调用：
+Server 暴露以下工具供 Skill 调用：
 
 | 工具 | 用途 |
 |------|------|
@@ -51,6 +51,7 @@ Server 暴露以下工具供 Agent/Skill 调用：
 ## 关键约束
 
 - **写操作必须确认**：日报提交和催办发送前，必须通过 AskUserQuestion 展示预览内容并等待用户明确确认。OA 没有覆盖/撤回接口，提交后无法修改。
+- **禁止文件创建**：所有 OA 操作必须通过 MCP 工具完成，禁止在用户项目目录创建脚本文件或运行 npm install。如果 MCP 工具不可用，应告知用户检查插件安装状态。
 - **模板字段动态获取**：提交日报前必须先调用 `get_report_template` 查询实际字段定义，`field_key` 不可硬编码，不同部门/模板字段可能完全不同。
 - **contents 格式**：`submit_report` 的 contents 参数为 `[[{field_key, field_value}]]` 二维数组结构。
 - **日期转换**：催办 API 的 `period` 参数需将日期去连字符转为整数（如 `"2026-04-23"` → `20260423`）。
