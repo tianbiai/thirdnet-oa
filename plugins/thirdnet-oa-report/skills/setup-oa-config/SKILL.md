@@ -20,15 +20,17 @@ metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"⚙️"}}'
 位置: `~/.thirdnet-oa-report/config.json`
 
 ```json
+// 示例值，实际使用时请替换为您的真实配置
 {
-  "oaApiBaseUrl": "https://oa.company.com",
-  "phone": "18888888888",
+  "oaApiBaseUrl": "https://your-oa-server.example.com/api",
+  "phone": "13800138000",
   "encryptedPassword": "AES-256加密字符串",
-  "defaultInstitutionId": 123,
-  "defaultInstitutionName": "技术部",
-  "application": "swkj_web",
-  "prekey": "swkj",
-  "hmacKey": "1111"
+  "defaultInstitutionId": 0,
+  "defaultInstitutionName": "",
+  "application": "your_application_name",
+  "prekey": "your_prekey",
+  "hmacKey": "your_hmac_key",
+  "sm2PublicKey": "YOUR_BASE64_ENCODED_SM2_PUBLIC_KEY"
 }
 ```
 
@@ -53,32 +55,57 @@ OA 地址: https://oa.company.com
 是否需要修改配置？
 ```
 
-### Step 2: 逐步收集配置项
+### Step 2: 一次性收集全部配置项
 
-依次引导用户输入以下信息：
+使用 AskUserQuestion 工具，一次性向用户展示所有必填配置项，让用户确认或修改。展示时提供参考示例值帮助用户理解每个字段的含义。
 
-**1. OA 系统 API 地址** (必填)
-- 提示: "请输入 OA 系统的 API 地址（如 https://oa.company.com）"
-- 验证: URL 格式有效，以 http:// 或 https:// 开头
+**必须展示的字段及参考值：**
 
-**2. 手机号** (必填)
-- 提示: "请输入 OA 系统登录手机号"
-- 验证: 非空
+| 字段 | 说明 | 参考值 |
+|------|------|--------|
+| oaApiBaseUrl | OA 系统 API 地址 | `https://your-oa-server.example.com/api` |
+| phone | 登录手机号 | `13800138000` |
+| password | 登录密码 | （由用户填写） |
+| publicKey | SM2 加密公钥（Base64，用于登录加密） | `YOUR_BASE64_ENCODED_SM2_PUBLIC_KEY` |
+| application | HMAC 签名的 Application 标识 | `your_application_name` |
+| prekey | HMAC 签名的加密前缀 | `your_prekey` |
+| hmacKey | HMAC 签名的加密密钥 | `your_hmac_key` |
 
-**3. 密码** (必填)
-- 提示: "请输入 OA 系统密码（密码不会被记录到对话日志中）"
-- 验证: 非空
-- 安全: 明确告知用户密码会被加密存储，不会出现在日志中
+**展示格式（使用 AskUserQuestion）：**
 
-**4. HMAC 签名凭据** (必填，用于登录接口 Basic 认证)
+向用户展示一个包含所有字段的表单，每个字段附带参考示例值。用户可以：
+- 直接确认使用示例值
+- 修改任意字段为自己的实际值
+- 选择 "Other" 自由输入
 
-依次收集以下三项信息（由管理员预分配）：
+示例提示词：
 
-- **Application 标识**: 提示 "请输入管理员分配的 Application 标识（如 swkj_web）"
-- **加密前缀 (prekey)**: 提示 "请输入加密前缀 prekey"
-- **加密密钥 (hmacKey)**: 提示 "请输入加密密钥 hmacKey（从服务端获取的 key）"
+```
+请确认以下 OA 配置信息（如需修改请直接编辑对应字段）：
 
-三项均非空才可继续。
+oaApiBaseUrl: https://your-oa-server.example.com/api
+phone: 13800138000
+password: （请输入您的密码）
+publicKey: YOUR_BASE64_ENCODED_SM2_PUBLIC_KEY
+application: your_application_name
+prekey: your_prekey
+hmacKey: your_hmac_key
+```
+
+**字段映射说明：**
+- 用户提供的 `publicKey` 对应配置文件中的 `sm2PublicKey` 字段
+- 密码不在对话输出中显示原文，配置文件中加密存储
+
+**验证规则：**
+- `oaApiBaseUrl`: 非空，以 http:// 或 https:// 开头（HTTP 地址需发出安全警告）
+- `phone`: 非空
+- `password`: 非空
+- `publicKey`: 非空，Base64 格式
+- `application`: 非空
+- `prekey`: 非空
+- `hmacKey`: 非空
+
+所有字段验证通过后进入 Step 3。
 
 ### Step 3: 保存配置并测试登录
 
@@ -148,6 +175,7 @@ Token 有效期至: 2026-04-22T18:00:00
 | `OA_APPLICATION` | HMAC 签名的 Application 标识 |
 | `OA_PREKEY` | HMAC 签名的加密前缀 |
 | `OA_HMAC_KEY` | HMAC 签名的加密密钥 |
+| `OA_SM2_PUBLIC_KEY` | SM2 加密公钥（Base64 编码） |
 
 如果检测到环境变量已设置，提示用户：
 

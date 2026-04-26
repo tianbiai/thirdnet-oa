@@ -9509,7 +9509,8 @@ var init_config_models = __esm({
       OA_DEFAULT_INSTITUTION_ID: "OA_DEFAULT_INSTITUTION_ID",
       OA_APPLICATION: "OA_APPLICATION",
       OA_PREKEY: "OA_PREKEY",
-      OA_HMAC_KEY: "OA_HMAC_KEY"
+      OA_HMAC_KEY: "OA_HMAC_KEY",
+      OA_SM2_PUBLIC_KEY: "OA_SM2_PUBLIC_KEY"
     };
   }
 });
@@ -9596,6 +9597,7 @@ function resolveConfig(fileConfig, overrides) {
   const application = process.env[ENV_KEYS.OA_APPLICATION] ?? fileConfig?.application ?? "";
   const prekey = process.env[ENV_KEYS.OA_PREKEY] ?? fileConfig?.prekey ?? "";
   const hmacKey = process.env[ENV_KEYS.OA_HMAC_KEY] ?? fileConfig?.hmacKey ?? "";
+  const sm2PublicKey = process.env[ENV_KEYS.OA_SM2_PUBLIC_KEY] ?? fileConfig?.sm2PublicKey ?? "";
   return {
     oaApiBaseUrl,
     phone,
@@ -9604,7 +9606,8 @@ function resolveConfig(fileConfig, overrides) {
     defaultInstitutionName: fileConfig?.defaultInstitutionName ?? "",
     application,
     prekey,
-    hmacKey
+    hmacKey,
+    sm2PublicKey
   };
 }
 var ALGORITHM, KEY_LENGTH, IV_LENGTH, TAG_LENGTH;
@@ -32938,16 +32941,15 @@ var StdioServerTransport = class {
 // src/services/auth-service.ts
 var import_sm_crypto = __toESM(require_src(), 1);
 import * as crypto from "node:crypto";
-var SM2_PUBLIC_KEY_BASE64 = "BLSZeKs6Jlux+JmgzRASOJ7h4HcIc5PoIgNZY22u6Mo70P68P7DIbmHBT1/d49/Pzv+3Bxv/A7gVEEKgxROFJR0=";
-var SM2_PUBLIC_KEY = Buffer.from(SM2_PUBLIC_KEY_BASE64, "base64").toString("hex");
 var USER_SOURCE_STAFF_WEB = 1211;
-function buildSm2Code(phone, password) {
+function buildSm2Code(phone, password, sm2PublicKeyBase64) {
+  const sm2PublicKey = Buffer.from(sm2PublicKeyBase64, "base64").toString("hex");
   const plaintext = `user=${phone} pwd=${password}`;
-  const cipherHex = import_sm_crypto.sm2.doEncrypt(plaintext, SM2_PUBLIC_KEY, 0);
+  const cipherHex = import_sm_crypto.sm2.doEncrypt(plaintext, sm2PublicKey, 0);
   return Buffer.from("04" + cipherHex, "hex").toString("base64");
 }
-function buildLoginBody(phone, password) {
-  const encryptedCode = buildSm2Code(phone, password);
+function buildLoginBody(phone, password, sm2PublicKeyBase64) {
+  const encryptedCode = buildSm2Code(phone, password, sm2PublicKeyBase64);
   return {
     code: encryptedCode,
     source: USER_SOURCE_STAFF_WEB
@@ -33067,7 +33069,7 @@ var OaApiClient = class {
     }
   }
   async doLogin() {
-    const loginBody = buildLoginBody(this.config.phone, this.config.encryptedPassword);
+    const loginBody = buildLoginBody(this.config.phone, this.config.encryptedPassword, this.config.sm2PublicKey);
     const relativePath = "/api/app/auth/login";
     const headers = { "Content-Type": "application/json" };
     if (this.config.application && this.config.prekey && this.config.hmacKey) {
@@ -33174,7 +33176,8 @@ function registerLoginTool(server2, getClient, setClient) {
           defaultInstitutionName: resolved.defaultInstitutionName,
           application: resolved.application,
           prekey: resolved.prekey,
-          hmacKey: resolved.hmacKey
+          hmacKey: resolved.hmacKey,
+          sm2PublicKey: resolved.sm2PublicKey
         };
         client = new OaApiClient(config2);
         setClient(client);
@@ -33408,7 +33411,8 @@ function initClientFromConfig() {
       defaultInstitutionName: resolved.defaultInstitutionName,
       application: resolved.application,
       prekey: resolved.prekey,
-      hmacKey: resolved.hmacKey
+      hmacKey: resolved.hmacKey,
+      sm2PublicKey: resolved.sm2PublicKey
     });
   }
 }

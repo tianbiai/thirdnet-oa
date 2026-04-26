@@ -1,6 +1,6 @@
 {
   "name": "thirdnet-oa-report",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "OA 日报助手 - 将日报提交、查看、催办流程集成到开发者日常工作环境，利用 AI 自动总结工作内容",
   "author": {
     "name": "pig_l"
