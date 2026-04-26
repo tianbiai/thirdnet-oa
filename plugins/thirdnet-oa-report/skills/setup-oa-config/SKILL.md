@@ -1,5 +1,5 @@
 ---
-name: OA 配置引导
+name: setup-oa-config
 description: >
   This skill should be used when the user asks to "配置OA", "设置OA", "初始化OA",
   "配置日报助手", "/配置OA", or when the OA system is not yet configured and the user
@@ -8,7 +8,6 @@ description: >
 version: 0.1.0
 metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"⚙️"}}'
 ---
-
 # OA 配置引导 Skill
 
 ## 概述
@@ -61,19 +60,20 @@ OA 地址: https://oa.company.com
 
 **必须展示的字段及参考值：**
 
-| 字段 | 说明 | 参考值 |
-|------|------|--------|
-| oaApiBaseUrl | OA 系统 API 地址 | `https://your-oa-server.example.com/api` |
-| phone | 登录手机号 | `13800138000` |
-| password | 登录密码 | （由用户填写） |
-| publicKey | SM2 加密公钥（Base64，用于登录加密） | `YOUR_BASE64_ENCODED_SM2_PUBLIC_KEY` |
-| application | HMAC 签名的 Application 标识 | `your_application_name` |
-| prekey | HMAC 签名的加密前缀 | `your_prekey` |
-| hmacKey | HMAC 签名的加密密钥 | `your_hmac_key` |
+| 字段         | 说明                                 | 参考值                                     |
+| ------------ | ------------------------------------ | ------------------------------------------ |
+| oaApiBaseUrl | OA 系统 API 地址                     | `https://your-oa-server.example.com/api` |
+| phone        | 登录手机号                           | `13800138000`                            |
+| password     | 登录密码                             | （由用户填写）                             |
+| publicKey    | SM2 加密公钥（Base64，用于登录加密） | `YOUR_BASE64_ENCODED_SM2_PUBLIC_KEY`     |
+| application  | HMAC 签名的 Application 标识         | `your_application_name`                  |
+| prekey       | HMAC 签名的加密前缀                  | `your_prekey`                            |
+| hmacKey      | HMAC 签名的加密密钥                  | `your_hmac_key`                          |
 
 **展示格式（使用 AskUserQuestion）：**
 
 向用户展示一个包含所有字段的表单，每个字段附带参考示例值。用户可以：
+
 - 直接确认使用示例值
 - 修改任意字段为自己的实际值
 - 选择 "Other" 自由输入
@@ -93,10 +93,12 @@ hmacKey: your_hmac_key
 ```
 
 **字段映射说明：**
+
 - 用户提供的 `publicKey` 对应配置文件中的 `sm2PublicKey` 字段
 - 密码不在对话输出中显示原文，配置文件中加密存储
 
 **验证规则：**
+
 - `oaApiBaseUrl`: 非空，以 http:// 或 https:// 开头（HTTP 地址需发出安全警告）
 - `phone`: 非空
 - `password`: 非空
@@ -118,6 +120,7 @@ hmacKey: your_hmac_key
 **成功**: 进入 Step 4 选择默认机构。
 
 **失败**:
+
 ```
 连接测试失败: [错误信息]
 排查建议:
@@ -166,16 +169,16 @@ Token 有效期至: 2026-04-22T18:00:00
 
 配置也支持通过环境变量设置，优先级高于配置文件：
 
-| 环境变量 | 说明 |
-|----------|------|
-| `OA_API_BASE_URL` | OA 系统 API 地址 |
-| `OA_PHONE` | 手机号 |
-| `OA_PASSWORD` | 密码（明文，运行时加密存储） |
-| `OA_DEFAULT_INSTITUTION_ID` | 默认机构 ID |
-| `OA_APPLICATION` | HMAC 签名的 Application 标识 |
-| `OA_PREKEY` | HMAC 签名的加密前缀 |
-| `OA_HMAC_KEY` | HMAC 签名的加密密钥 |
-| `OA_SM2_PUBLIC_KEY` | SM2 加密公钥（Base64 编码） |
+| 环境变量                      | 说明                         |
+| ----------------------------- | ---------------------------- |
+| `OA_API_BASE_URL`           | OA 系统 API 地址             |
+| `OA_PHONE`                  | 手机号                       |
+| `OA_PASSWORD`               | 密码（明文，运行时加密存储） |
+| `OA_DEFAULT_INSTITUTION_ID` | 默认机构 ID                  |
+| `OA_APPLICATION`            | HMAC 签名的 Application 标识 |
+| `OA_PREKEY`                 | HMAC 签名的加密前缀          |
+| `OA_HMAC_KEY`               | HMAC 签名的加密密钥          |
+| `OA_SM2_PUBLIC_KEY`         | SM2 加密公钥（Base64 编码）  |
 
 如果检测到环境变量已设置，提示用户：
 
@@ -189,11 +192,11 @@ Token 有效期至: 2026-04-22T18:00:00
 
 ## 错误处理
 
-| 错误码 | 处理方式 |
-|--------|---------|
-| `NETWORK_ERROR` | 提示检查网络和 OA 地址，询问是否重试 |
-| `AUTH_FAILED` | 提示凭据错误，引导重新输入手机号和密码 |
-| `NOT_CONFIGURED` | 正常流程，继续引导配置 |
+| 错误码             | 处理方式                               |
+| ------------------ | -------------------------------------- |
+| `NETWORK_ERROR`  | 提示检查网络和 OA 地址，询问是否重试   |
+| `AUTH_FAILED`    | 提示凭据错误，引导重新输入手机号和密码 |
+| `NOT_CONFIGURED` | 正常流程，继续引导配置                 |
 
 ## 安全约束
 
