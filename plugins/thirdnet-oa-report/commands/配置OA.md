@@ -7,7 +7,7 @@ allowed-tools:
 
 配置 OA 日报助手。
 
-按照 `skills/setup-oa-config/SKILL.md` 中定义的 OA 配置引导 Skill 工作流程执行。
+按照 `thirdnet-oa-report/skills/setup-oa-config/SKILL.md` 中定义的 OA 配置引导 Skill 工作流程执行。
 
 关键步骤：
 1. 调用 MCP 工具 `check_config` 检查当前配置状态
