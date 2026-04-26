@@ -41,7 +41,13 @@ metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"⚙️"}}'
 
 调用 MCP 工具 `check_config` 查看当前配置状态。
 
-如果已配置，展示当前状态并询问是否需要修改：
+**场景 A — 未配置**: 进入 Step 2 引导首次配置。
+
+**场景 B — 已配置，用户选择修改**: 记录哪些字段发生了变更，进入 Step 2。修改配置后必须重新执行 Step 3 登录 → Step 4 查询机构树 → Step 5 更新部门信息，确保部门数据与新的配置一致。
+
+**场景 C — 已配置，仅更新部门**: 如果用户只想切换默认部门而不改其他配置，跳过 Step 2，直接调用 `login` 刷新 Token，然后进入 Step 4 重新选择机构。
+
+展示当前配置状态：
 
 ```
 当前配置状态
@@ -51,7 +57,10 @@ OA 地址: https://oa.company.com
 默认机构: 技术部 (ID: 123)
 认证状态: 已认证
 
-是否需要修改配置？
+请选择操作:
+  1. 修改配置（修改后需重新选择部门）
+  2. 仅切换默认部门
+  3. 保持不变
 ```
 
 ### Step 2: 一次性收集全部配置项
@@ -84,12 +93,12 @@ OA 地址: https://oa.company.com
 请确认以下 OA 配置信息（如需修改请直接编辑对应字段）：
 
 oaApiBaseUrl: https://your-oa-server.example.com/api
-phone: 13800138000
+phone: （请输入您的手机号）
 password: （请输入您的密码）
-publicKey: YOUR_BASE64_ENCODED_SM2_PUBLIC_KEY
-application: your_application_name
-prekey: your_prekey
-hmacKey: your_hmac_key
+publicKey: （请输入 SM2 公钥）
+application: （请输入 Application 标识）
+prekey: （请输入加密前缀）
+hmacKey: （请输入 HMAC 密钥）
 ```
 
 **字段映射说明：**
@@ -117,7 +126,7 @@ hmacKey: your_hmac_key
 
 保存后调用 `login` 工具（参数: `phone` + `password`）验证配置是否正确：
 
-**成功**: 进入 Step 4 选择默认机构。
+**成功**: 进入 Step 4 查询机构树并更新部门信息。
 
 **失败**:
 
@@ -131,20 +140,24 @@ hmacKey: your_hmac_key
 是否重新配置？
 ```
 
-### Step 4: 选择默认机构
+### Step 4: 查询机构树并更新部门信息
 
-登录成功后，调用 `get_institutions` 工具获取用户所属的机构树。
+登录成功后，**必须**调用 `get_institutions` 工具重新获取用户所属的机构树。即使配置未修改（场景 C），也应重新查询以获取最新的部门结构。
 
-将返回的机构列表展示给用户，格式如下：
+机构树返回的是嵌套结构，每个节点包含 `id`、`name`、`parent_id`、`children`。将机构树扁平化展示给用户，用缩进表示层级关系：
 
 ```
 请选择您的默认机构（输入编号）:
   1. 技术部 (ID: 123)
-  2. 产品部 (ID: 456)
-  3. 市场部 (ID: 789)
+    2. 前端组 (ID: 456) ← 技术部子部门
+    3. 后端组 (ID: 789) ← 技术部子部门
+  4. 产品部 (ID: 234)
+  5. 市场部 (ID: 345)
 ```
 
 用户输入编号后，将对应的 `institutionId` 和 `institutionName` 保存到配置文件的 `defaultInstitutionId` 和 `defaultInstitutionName` 字段。
+
+**注意**: 机构树数据随组织架构变动而变化，每次配置修改或部门切换时都应重新查询，不要使用缓存的旧数据。
 
 ### Step 5: 配置完成
 
@@ -155,6 +168,7 @@ hmacKey: your_hmac_key
 ━━━━━━━━━━━━━━━━━━━━
 用户: 188****8888
 默认机构: 技术部 (ID: 123)
+部门信息: 已更新（共 X 个机构）
 Token 有效期至: 2026-04-22T18:00:00
 
 现在可以使用以下功能:
