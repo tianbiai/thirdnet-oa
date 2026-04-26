@@ -32976,6 +32976,7 @@ function makeError(code, message) {
 var OaApiClient = class {
   token = null;
   loginInfo = null;
+  isManager = false;
   config;
   loginPromise = null;
   constructor(config2) {
@@ -33109,6 +33110,7 @@ var OaApiClient = class {
       const data = await response.json();
       this.token = typeof data.token === "string" ? data.token : data.token.access_token;
       this.loginInfo = data.userlogin;
+      this.isManager = data.ismanager === 1;
       return { ok: true, data };
     } catch (err) {
       if (err.name === "AbortError") return makeError("NETWORK_ERROR", "\u767B\u5F55\u8BF7\u6C42\u8D85\u65F6\uFF0830\u79D2\uFF09");
@@ -33124,6 +33126,9 @@ var OaApiClient = class {
   }
   isAuthenticated() {
     return this.token !== null;
+  }
+  getIsManager() {
+    return this.isManager;
   }
   async getReportTemplate(institutionId, date5) {
     return this.request("GET", `/api/app/corp/work/report/default/${institutionId}/${date5}`);
@@ -33372,6 +33377,7 @@ function registerConfigTool(server2, getClient) {
       has_credentials: !!(resolved?.phone && resolved?.password),
       oa_url: resolved?.oaApiBaseUrl ?? null,
       authenticated,
+      is_manager: client?.getIsManager() ?? false,
       missing_fields: missingFields
     };
     if (userInfo2) {
@@ -33390,7 +33396,7 @@ function registerConfigTool(server2, getClient) {
 // src/index.ts
 var server = new McpServer({
   name: "thirdnet-oa-report",
-  version: "0.1.0"
+  version: "0.3.1"
 });
 var oaClient = null;
 function getOaClient() {

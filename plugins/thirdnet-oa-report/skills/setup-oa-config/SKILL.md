@@ -1,11 +1,8 @@
 ---
 name: setup-oa-config
 description: >
-  This skill should be used when the user asks to "配置OA", "设置OA", "初始化OA",
-  "配置日报助手", "/配置OA", or when the OA system is not yet configured and the user
-  needs to set up the connection. Also triggers when other OA skills detect missing
-  configuration and need to guide the user through setup.
-version: 0.1.0
+  当用户提到"配置OA"、"设置OA"、"初始化OA"、"配置日报助手"等配置相关意图时使用此 Skill。
+  也包括其他 OA Skill 检测到未配置时自动触发。负责引导用户完成 OA 连接配置、登录验证和默认机构选择。
 metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"⚙️"}}'
 ---
 # OA 配置引导 Skill

@@ -1,11 +1,8 @@
 ---
 name: remind-daily-report
 description: >
-  This skill should be used when the user asks to "催办", "催日报", "催办日报",
-  "提醒交日报", "看看谁没交日报", "/催办", "/remind", or wants to send reminders
-  to team members who haven't submitted their daily reports. Also triggers when
-  user wants to check who hasn't submitted and follow up.
-version: 0.1.0
+  当用户提到"催办"、"催日报"、"催一下没交日报的人"、"提醒交日报"、"看看谁没交日报"等催办相关意图时
+  使用此 Skill。负责查询未提交人员名单，确认后通过 OA 系统发送催办通知（仅部门领导可用）。
 metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"📨"}}'
 ---
 # OA 日报催办 Skill

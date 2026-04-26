@@ -1,11 +1,8 @@
 ---
 name: submit-daily-report
 description: >
-  This skill should be used when the user asks to "提交日报", "写日报", "提交今天的日报",
-  "帮我写日报", "日报", "/日报", "/submit-report", or wants to submit a daily work report
-  to the OA system. Also triggers when user mentions daily report submission in Chinese
-  (e.g., "我今天做了...", "帮我总结今天的工作").
-version: 0.1.0
+  当用户提到"提交日报"、"写日报"、"帮我写日报"、"总结今天的工作"、"日报"、"我今天做了..."等
+  日报提交相关意图时使用此 Skill。负责引导用户完成 OA 日报提交流程，支持 AI 智能总结工作内容。
 metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"📝"}}'
 ---
 # OA 日报提交 Skill

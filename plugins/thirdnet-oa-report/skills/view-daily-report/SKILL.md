@@ -1,11 +1,8 @@
 ---
 name: view-daily-report
 description: >
-  This skill should be used when the user asks to "查看日报", "看日报", "今天的日报",
-  "查看日报提交情况", "/查看日报", "/view-report", or wants to query and view daily
-  reports from the OA system. Triggers on queries about report status, team submissions,
-  or specific people's reports (e.g., "张三交了日报吗", "技术部本周日报情况").
-version: 0.1.0
+  当用户提到"查看日报"、"看日报"、"今天的日报"、"谁交了没"、"张三交了日报吗"、"技术部本周日报情况"
+  等日报查询意图时使用此 Skill。负责从 OA 系统查询并格式化展示日报数据，支持个人详情、团队总览、多日汇总等多种视图。
 metadata: '{"openclaw":{"requires":{"bins":["node"]},"emoji":"📋"}}'
 ---
 # OA 日报查看 Skill
